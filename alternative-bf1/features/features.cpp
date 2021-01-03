@@ -63,9 +63,6 @@ void CFeatures::UpdatePlayers()
 		if (!IsValidPtr(cPlayerSoldier))
 			continue;
 
-		//if (cPlayerSoldier->location.z < -100.f) //mb shit?
-		//	continue;
-
 		if (cPlayerSoldier->IsDead())
 			continue;
 
@@ -110,6 +107,9 @@ void CFeatures::UpdatePlayers()
 		player_on_vehicle.m_Index = p.m_Index;
 		player_on_vehicle.m_cszName = p.m_cszName;
 		player_on_vehicle.m_iTeam = p.m_iTeam;
+		player_on_vehicle.m_IsVisible = true;
+		player_on_vehicle.m_flHeath = cVehicleSoldier->GetHealthComponent()->m_Health;
+		player_on_vehicle.m_flMaxHealth = cVehicleSoldier->GetHealthComponent()->m_MaxHealth;
 		player_on_vehicle.m_InVehicle = true;
 		player_on_vehicle.m_vOrigin = cVehicleSoldier->GetVehiclePosition();
 		player_on_vehicle.m_vBoundBoxMin = Vector();
@@ -181,7 +181,7 @@ void CFeatures::Aimbot()
 	if (event)
 		return;
 
-	int iTarget = 0;
+	int iTarget = INT_MAX;
 
 	float flMaxClosetsToScreenCenter = FLT_MAX;
 
@@ -190,9 +190,9 @@ void CFeatures::Aimbot()
 		if (vars::aimbot::only_enemy && this->g_ExtraPlayers[i].m_iTeam == this->g_Local.m_iTeam)
 			continue;
 
-		if (this->g_ExtraPlayers[i].m_IsVisible == false)
+		if (this->g_ExtraPlayers[i].m_InVehicle == false && this->g_ExtraPlayers[i].m_IsVisible == false)
 			continue;
-
+		
 		Vector vTarget = this->g_ExtraPlayers[i].m_vOrigin;
 
 		float flScreenTarget[2];
@@ -212,7 +212,7 @@ void CFeatures::Aimbot()
 		}
 	}
 
-	if (iTarget == 0)
+	if (iTarget == INT_MAX)
 		return;
 
 	if (iBone == BONE::NONE)
@@ -221,7 +221,7 @@ void CFeatures::Aimbot()
 	Vector vTarget;
 
 	if (this->g_ExtraPlayers[iTarget].m_InVehicle)
-		vTarget = this->g_ExtraPlayers[iTarget].m_vOrigin;
+		vTarget = this->g_ExtraPlayers[iTarget].m_vOrigin + this->g_ExtraPlayers[iTarget].m_vBoundBoxMax;
 	else
 		vTarget = this->g_PlayersBone[iTarget].vBoneOrigin[iBone];
 
@@ -323,21 +323,18 @@ void CFeatures::PlayerESP()
 			continue;
 
 		auto col_box = PlayerColor(p.m_iTeam, p.m_InVehicle, p.m_IsVisible);
-
+			
 		Vector vTop;
 		Vector vBot;
 
 		vTop = p.m_vOrigin + p.m_vBoundBoxMax;
 		vBot = p.m_vOrigin + p.m_vBoundBoxMin;
 
-		if (p.m_InVehicle == false)
-		{
-			vTop.x += 0.389002f;
-			vBot.x += 0.389002f;
-			vTop.z += -0.35f;
-			vBot.z += -0.35f;
-		}
-
+		vTop.x += 0.389002f;
+		vBot.x += 0.389002f;
+		vTop.z += -0.35f;
+		vBot.z += -0.35f;
+	
 		this->Draw3DCircle(vBot, col_box);
 
 		float flTop[2], flBot[2];
