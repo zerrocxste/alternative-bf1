@@ -421,8 +421,8 @@ void CFeatures::ScreenInfo()
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 4.1f);
 	if (ImGui::Begin("##info", static_cast<bool*>(0), ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove))
 	{
-		ImGui::SetWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x - 215, 8.f));
-		ImGui::SetWindowSize(ImVec2(205.f, 10.f));
+		ImGui::SetWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x - 229.f, 8.f));
+		ImGui::SetWindowSize(ImVec2(219.f, 10.f));
 
 		time_t rawtime;
 		struct tm* timeinfo;
@@ -437,7 +437,7 @@ void CFeatures::ScreenInfo()
 		ImGui::SameLine();
 		ImGui::Text("%.f fps | ", ImGui::GetIO().Framerate);
 		float calc_x = ImGui::CalcTextSize(buffer).x;
-		ImGui::SameLine(ImGui::GetWindowWidth() - calc_x - 5.f);
+		ImGui::SameLine(ImGui::GetWindowWidth() - calc_x - 9.f);
 		ImGui::Text(buffer);
 	}
 	ImGui::End();
