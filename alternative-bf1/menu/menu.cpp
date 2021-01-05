@@ -307,7 +307,7 @@ void drawShadow()
 
 namespace menu_utils
 {
-	void tabs(const char* lebel[], ImVec2 size, int& cur_page, const int arr_, float x_offset = 0.f, bool* click_callback = false)
+	void tabs(const char* lebel[], const int arr_, ImVec2 size, int& cur_page, float x_offset = 0.f, bool* click_callback = false)
 	{
 		for (int i = 0; i < arr_; i++)
 		{
@@ -448,10 +448,10 @@ void CMenu::Run()
 		"Aimbot", "Visuals", "Misc", "Config"
 	};
 
-	menu_utils::tabs(lebels, ImVec2(ImGui::GetWindowSize().x / 4.f - 44.f, 20), m_Page, IM_ARRAYSIZE(lebels));
+	menu_utils::tabs(lebels, IM_ARRAYSIZE(lebels), ImVec2(ImGui::GetWindowSize().x / 4.f - 44.f, 20), m_Page);
 
 	ImGui::GetFont()->FontSize = 15.f;
-	ImGui::BeginChild("1", ImVec2(0, /*339*/ImGui::GetWindowSize().y - 60.f), true);	
+	ImGui::BeginChild("1", ImVec2(0, ImGui::GetWindowSize().y - 60.f), true);	
 
 	if (m_Page == PAGE_GLOBALS_AIMBOT)
 	{

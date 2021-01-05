@@ -237,77 +237,44 @@ void CFeatures::Aimbot()
 			ImGui::GetIO().DisplaySize.y / 2.f
 		};
 
-		float TargetX = 0;
-		float TargetY = 0;
+		float flTarget[2] = { 0.f, 0.f };
 
-		if (flScreenTarget[0] != 0)
+		for (int i = 0; i < 2; i++)
 		{
-			if (flScreenTarget[0] > flScreenCenter[0])
+			if (flScreenTarget[i] != 0.f)
 			{
-				TargetX = -(flScreenCenter[0] - flScreenTarget[0]);
-				TargetX /= flAimSpeed;
-				if (TargetX + flScreenCenter[0] > flScreenCenter[0] * 2)
-					TargetX = 0;
+				if (flScreenTarget[i] > flScreenCenter[i])
+				{
+					flTarget[i] = -(flScreenCenter[i] - flScreenTarget[i]);
+					flTarget[i] /= flAimSpeed;
+					if (flTarget[i] + flScreenCenter[i] > flScreenCenter[i] * 2.f)
+						flTarget[i] = 0.f;
+				}
+
+				if (flScreenTarget[i] < flScreenCenter[i])
+				{
+					flTarget[i] = flScreenTarget[i] - flScreenCenter[i];
+					flTarget[i] /= flAimSpeed;
+					if (flTarget[i] + flScreenCenter[i] < 0.f)
+						flTarget[i] = 0.f;
+				}
 			}
 
-			if (flScreenTarget[0] < flScreenCenter[0])
-			{
-				TargetX = flScreenTarget[0] - flScreenCenter[0];
-				TargetX /= flAimSpeed;
-				if (TargetX + flScreenCenter[0] < 0)
-					TargetX = 0;
-			}
-		}
+			flTarget[i] /= 10.f;
 
-		if (flScreenTarget[1] != 0)
-		{
-			if (flScreenTarget[1] > flScreenCenter[1])
+			if (abs(flTarget[i]) < 1.f)
 			{
-				TargetY = -(flScreenCenter[1] - flScreenTarget[1]);
-				TargetY /= flAimSpeed;
-				if (TargetY + flScreenCenter[1] > flScreenCenter[1] * 2)
-					TargetY = 0;
-			}
-
-			if (flScreenTarget[1] < flScreenCenter[1])
-			{
-				TargetY = flScreenTarget[1] - flScreenCenter[1];
-				TargetY /= flAimSpeed;
-				if (TargetY + flScreenCenter[1] < 0)
-					TargetY = 0;
-			}
-		}
-
-		TargetX /= 10;
-		TargetY /= 10;
-
-		if (abs(TargetX) < 1)
-		{
-			if (TargetX > 0)
-			{
-				TargetX = 1;
-			}
-			if (TargetX < 0)
-			{
-				TargetX = -1;
-			}
-		}
-		if (abs(TargetY) < 1)
-		{
-			if (TargetY > 0)
-			{
-				TargetY = 1;
-			}
-			if (TargetY < 0)
-			{
-				TargetY = -1;
+				if (flTarget[i] > 0.f)
+					flTarget[i] = 1.f;
+				if (flTarget[i] < 0.f)
+					flTarget[i] = -1.f;
 			}
 		}
 
 		POINT point;
 		GetCursorPos(&point);
-		point.x += TargetX;
-		point.y += TargetY;
+		point.x += flTarget[0];
+		point.y += flTarget[1];
 		SendMessage(globals::hGame, WM_MOUSEMOVE, 0, MAKELPARAM(point.x, point.y));
 	}
 }
@@ -367,29 +334,32 @@ void CFeatures::DrawBox(float x, float y, float w, float h, const ImColor col)
 
 void CFeatures::DrawName(const char *pcszPlayerName, float x, float y, float w, ImColor col)
 {
-	if (vars::visuals::name && pcszPlayerName != NULL)
-	{
-		ImFont* Font = ImGui::GetIO().Fonts->Fonts[0];
-		ImVec2 text_size = Font->CalcTextSizeA(vars::font::size ? vars::font::size : Font->FontSize, FLT_MAX, 0, "");
+	if (vars::visuals::name == false)
+		return;
 
-		m_pDrawing->AddText(x + w / 2.f, y - text_size.y - 2.f, ImColor(1.f, 1.f, 1.f, col.Value.w), vars::font::size, FL_CENTER_X, u8"%s", pcszPlayerName);
-	}
+	if (pcszPlayerName == NULL)
+		return;
+
+	ImFont* Font = ImGui::GetIO().Fonts->Fonts[0];
+	ImVec2 text_size = Font->CalcTextSizeA(vars::font::size ? vars::font::size : Font->FontSize, FLT_MAX, 0, "");
+
+	m_pDrawing->AddText(x + w / 2.f, y - text_size.y - 2.f, ImColor(1.f, 1.f, 1.f, col.Value.w), vars::font::size, FL_CENTER_X, u8"%s", pcszPlayerName);
 }
 
 void CFeatures::DrawHealth(float x, float y, float h, float health, float max_health, ImColor col)
 {
-	if (vars::visuals::health)
-	{
-		health = ImClamp(health, 0.f, max_health);
+	if (vars::visuals::health == false)
+		return;
 
-		const auto size = h / max_health * health;
-		const auto thickness = 2.f;
+	health = ImClamp(health, 0.f, max_health);
 
-		m_pDrawing->DrawFillArea(x - thickness - 1.9f, y + h, thickness, -size, ImColor(0.f, 1.f, 0.f, col.Value.w));
+	const auto size = h / max_health * health;
+	const auto thickness = 2.f;
 
-		if (vars::visuals::box_type == 2 || vars::visuals::box_type == 4 || vars::visuals::box_type == 6)
-			m_pDrawing->DrawBox(x - thickness - 2.9f, y - 1.f, thickness + 2.f, h + 2.f, ImColor(0.f, 0.f, 0.f, col.Value.w));
-	}
+	m_pDrawing->DrawFillArea(x - thickness - 1.9f, y + h, thickness, -size, ImColor(0.f, 1.f, 0.f, col.Value.w));
+
+	if (vars::visuals::box_type == 2 || vars::visuals::box_type == 4 || vars::visuals::box_type == 6)
+		m_pDrawing->DrawBox(x - thickness - 2.9f, y - 1.f, thickness + 2.f, h + 2.f, ImColor(0.f, 0.f, 0.f, col.Value.w));
 }
 
 void CFeatures::DrawDistance(float x, float y, float w, float h, float distance)
@@ -416,27 +386,22 @@ void CFeatures::DrawSkeleton()
 void CFeatures::ScreenInfo()
 {
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 4.1f);
-	if (ImGui::Begin("##info", static_cast<bool*>(0), ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove))
-	{
-		ImGui::SetWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x - 229.f, 8.f));
-		ImGui::SetWindowSize(ImVec2(219.f, 10.f));
-
-		time_t rawtime;
-		struct tm* timeinfo;
-		char buffer[80];
-
-		time(&rawtime);
-		timeinfo = localtime(&rawtime);
-
-		strftime(buffer, 80, "%H:%M:%S", timeinfo);
-
-		ImGui::Text("alternative | ");
-		ImGui::SameLine();
-		ImGui::Text("%.f fps | ", ImGui::GetIO().Framerate);
-		float calc_x = ImGui::CalcTextSize(buffer).x;
-		ImGui::SameLine(ImGui::GetWindowWidth() - calc_x - 9.f);
-		ImGui::Text(buffer);
-	}
+	ImGui::Begin("##info", nullptr, 
+		ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove);
+	ImGui::SetWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x - 229.f, 8.f));
+	ImGui::SetWindowSize(ImVec2(219.f, 10.f));
+	time_t rawtime;
+	struct tm* timeinfo;
+	char buffer[80];
+	time(&rawtime);
+	timeinfo = localtime(&rawtime);
+	strftime(buffer, 80, "%H:%M:%S", timeinfo);
+	ImGui::Text("alternative | ");
+	ImGui::SameLine();
+	ImGui::Text("%.f fps | ", ImGui::GetIO().Framerate);
+	float calc_x = ImGui::CalcTextSize(buffer).x;
+	ImGui::SameLine(ImGui::GetWindowWidth() - calc_x - 9.f);
+	ImGui::Text(buffer);
 	ImGui::End();
 	ImGui::PopStyleVar();
 }

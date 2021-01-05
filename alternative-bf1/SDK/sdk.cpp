@@ -3,12 +3,12 @@
 
 ImVec2 ToImVec2(Vector vec)
 {
-    return ImVec2(vec.x, vec.y);
+	return ImVec2(vec.x, vec.y);
 }
 
 Vector ToVec2(ImVec2 vec)
 {
-    return Vector(vec.x, vec.y, 0.f);
+	return Vector(vec.x, vec.y, 0.f);
 }
 
 /* Implementation for distance */
@@ -27,31 +27,31 @@ float ClientSoldierEntity::Length(Vector origin, Vector target)
 
 bool ClientSoldierEntity::GetBonePos(int BoneId, Vector& vOut)
 {
-    BoneCollisionComponent* pBoneCollisionComponent = this->bonecollisioncomponent;
+	BoneCollisionComponent* pBoneCollisionComponent = this->bonecollisioncomponent;
 
-    if (!IsValidPtr(pBoneCollisionComponent))
-        return false;
+	if (!IsValidPtr(pBoneCollisionComponent))
+		return false;
 
-    QuatTransform* pQuat = pBoneCollisionComponent->m_ragdollTransforms.m_ActiveWorldTransforms;
+	QuatTransform* pQuat = pBoneCollisionComponent->m_ragdollTransforms.m_ActiveWorldTransforms;
 
-    if (!IsValidPtr(pQuat))
-        return false;
+	if (!IsValidPtr(pQuat))
+		return false;
 
-    vOut.x = pQuat[BoneId].m_TransAndScale.x;
-    vOut.y = pQuat[BoneId].m_TransAndScale.y;
-    vOut.z = pQuat[BoneId].m_TransAndScale.z;
+	vOut.x = pQuat[BoneId].m_TransAndScale.x;
+	vOut.y = pQuat[BoneId].m_TransAndScale.y;
+	vOut.z = pQuat[BoneId].m_TransAndScale.z;
 
-    return true;
+	return true;
 }
 
 Vector Mat3Vector(Matrix4x4 mat, Vector vec)
 {
-    return Vector
-    (
-        mat._11 * vec.x + mat._12 * vec.x + mat._13 * vec.x,
-        mat._21 * vec.y + mat._22 * vec.y + mat._23 * vec.y,
-        mat._31 * vec.z + mat._32 * vec.z + mat._33 * vec.z
-    );
+	return Vector
+	(
+		mat._11 * vec.x + mat._12 * vec.x + mat._13 * vec.x,
+		mat._21 * vec.y + mat._22 * vec.y + mat._23 * vec.y,
+		mat._31 * vec.z + mat._32 * vec.z + mat._33 * vec.z
+	);
 }
 
 namespace memory_utils
