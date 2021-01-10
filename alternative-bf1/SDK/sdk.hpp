@@ -4,21 +4,13 @@
 /* Includes for this file */
 #include <Windows.h>
 
-ImVec2 ToImVec2(Vector vec);
-
-Vector ToVec2(ImVec2 vec);
-
 #define OFFSET_CLIENTGAMECONTEXT 0x1437F7758
 #define OFFSET_GAMERENDERER 0x1439e6d08
 #define OFFSET_OBFUSCATEMGR 0x14351D058
 #define OFFSET_DXRENDERER 0x1439E75F8
-#define OFFSET_DISPATCHMESSAGE 0x14461c4f0
 
 /* Check if the ptr parameter is valid */
 #define IsValidPtr(x) ( x != NULL && (DWORD_PTR)x >= 0x10000 && (DWORD_PTR)x < 0x00007FFFFFFEFFFF)
-
-/* Implementation for World to screen */
-bool W2S(Vector position, float *out);
 
 bool WorldToScreen(const Vector& vIn, float* flOut);
 
@@ -76,6 +68,7 @@ public:
 		return *(ClientGameContext**)(OFFSET_CLIENTGAMECONTEXT);
 	}
 };
+
 class HealthComponent {
 public:
 	char pad_0000[32]; //0x0000
@@ -85,6 +78,7 @@ public:
 	float m_VehicleHealth; //0x0040
 	char pad_0044[4092]; //0x0044
 }; //Size: 0x1040
+
 class VehicleEntityData {
 public:
 	char pad_0000[504]; //0x0000
@@ -94,35 +88,7 @@ public:
 	char pad_0300[7488]; //0x0300
 }; //Size: 0x2040
 
-class LinearTransform
-{
-public:
-	union
-	{
-		struct
-		{
-			Vector left;
-			Vector up;
-			Vector forward;
-			Vector trans;
-		};
-		FLOAT data[4][4];
-	};
-	LinearTransform()
-	{}
-};
-
-struct TransformAABBStruct
-{
-	LinearTransform Transform;
-	AxisAlignedBox AABB;
-	Matrix4x4 pad;
-
-	TransformAABBStruct();
-};
-
 Vector Mat3Vector(Matrix4x4 mat, Vector vec);
-
 
 class ClientVehicleEntity {
 public:
@@ -251,9 +217,6 @@ public:
 	char pad_098A[6]; //0x098A
 	Vector location; //0x0990
 	char pad_099C[1712]; //0x099C
-
-	float Distance(Vector origin);
-	float Length(Vector origin, Vector target);
 
 	bool IsValid() {
 		return (this->healthcomponent->m_Health > 0.1f && this->healthcomponent->m_Health <= this->healthcomponent->m_MaxHealth);

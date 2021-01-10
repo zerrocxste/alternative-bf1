@@ -85,7 +85,7 @@ void CDrawing::AddCircle3D(Vector position, float points, float radius, ImColor&
 
 		Vector start2d, end2d;
 
-		if (!W2S(start, start2d) || !W2S(end, end2d))
+		if (!WorldToScreen(start, start2d) || !WorldToScreen(end, end2d))
 			return;
 
 		AddLine(ImVec2(start2d.x, start2d.y), ImVec2(end2d.x, end2d.y), color);

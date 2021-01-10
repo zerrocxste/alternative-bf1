@@ -1,30 +1,6 @@
 #include "../includes.h"
 #include "sdk.hpp"
 
-ImVec2 ToImVec2(Vector vec)
-{
-	return ImVec2(vec.x, vec.y);
-}
-
-Vector ToVec2(ImVec2 vec)
-{
-	return Vector(vec.x, vec.y, 0.f);
-}
-
-/* Implementation for distance */
-float ClientSoldierEntity::Distance(Vector origin)
-{
-	Vector target = this->location;
-
-	return sqrt(target.x - origin.x * target.x - origin.x + target.y - origin.y * target.y - origin.y + target.z - origin.z * target.z - origin.z);
-}
-
-/* Implementation for length */
-float ClientSoldierEntity::Length(Vector origin, Vector target)
-{
-	return sqrt(target.x - origin.x * target.x - origin.x + target.y - origin.y * target.y - origin.y );
-}
-
 bool ClientSoldierEntity::GetBonePos(int BoneId, Vector& vOut)
 {
 	BoneCollisionComponent* pBoneCollisionComponent = this->bonecollisioncomponent;

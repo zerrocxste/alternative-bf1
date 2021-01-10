@@ -28,10 +28,6 @@ struct extra_players_data_s
 	Vector m_vOrigin;
 	Vector m_vBoundBoxMax;
 	Vector m_vBoundBoxMin;
-};
-
-struct bone_players_data_s
-{
 	Vector vBoneOrigin[4];
 };
 
@@ -73,6 +69,5 @@ private:
 	extra_players_data_s g_Local;
 	std::deque<players_data_s>g_Players;
 	std::deque<extra_players_data_s>g_ExtraPlayers;
-	std::deque<bone_players_data_s>g_PlayersBone;
 };
 extern std::unique_ptr<CFeatures>m_pFeatures;

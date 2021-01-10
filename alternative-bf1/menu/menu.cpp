@@ -69,7 +69,7 @@ struct RectangleShadowSettings
 	int  rings = 10;
 	int  spacingBetweenRings = 1;
 	int  samplesPerCornerSide = 20;
-	int  spacingBetweenSamples = 1;
+	int  spacingBetweenSamples = 4;
 
 	// Outputs
 	int totalVertices = 0;
@@ -275,8 +275,13 @@ void drawShadow()
 	/*ImGui::SetNextWindowSize(ImVec2(400, 800), ImGuiCond_Once);
 	ImGui::Begin("Test Shadows");
 	ImGui::Checkbox("Linear Falloff", &shadowSettings.linear);
+	ImGui::SliderFloat2("Rectangle Size", &shadowSettings.rectSize.x, 10, 256);
 	ImGui::SliderFloat("Shadow Sigma", &shadowSettings.sigma, 0, 50);
+	ImGui::SliderFloat2("Shadow Offset", &shadowSettings.shadowOffset.x, -10, 10);
+	ImGui::SliderInt("Rings number", &shadowSettings.rings, 1, 10);
+	ImGui::SliderInt("Rings spacing", &shadowSettings.spacingBetweenRings, 1, 20);
 	ImGui::SliderInt("Corner samples", &shadowSettings.samplesPerCornerSide, 1, 20);
+	ImGui::SliderInt("Corner spacing", &shadowSettings.spacingBetweenSamples, 1, 20);
 	ImGui::ColorPicker3("Shadow Color", &shadowSettings.shadowColor.Value.x, ImGuiColorEditFlags_PickerHueWheel);
 	ImGui::End();*/
 
@@ -568,6 +573,9 @@ void CMenu::Run()
 	{
 		ImGui::BeginChild("Misc", ImVec2(), true);
 
+		std::string szEnableAllFunc = vars::global::enable ? "Turn off all cheat functions" : "Enable all cheat functions";
+		if (ImGui::Button(szEnableAllFunc.c_str(), ImVec2(ImGui::GetWindowSize().x - 15.f, 40)))
+			vars::global::enable = !vars::global::enable;
 		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.f, 0.5f, 1.5f, 1.f));
 		if (ImGui::Button("Quit", ImVec2(ImGui::GetWindowSize().x - 15.f, 40)))
 			globals::unload_dll = true;

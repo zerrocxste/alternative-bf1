@@ -4,6 +4,9 @@ std::unique_ptr<CFeatures>m_pFeatures = std::make_unique<CFeatures>();
 
 void CFeatures::Run()
 {
+	if (vars::global::enable == false)
+		return;
+
 	if (this->UpdateLocalPlayer() == false)
 		return;
 
@@ -40,7 +43,7 @@ bool CFeatures::UpdateLocalPlayer()
 
 void CFeatures::UpdatePlayers()
 {
-	for (int i = 1; i <= 64; i++)
+	for (int i = 0; i <= 64; i++)
 	{
 		auto* cPlayer = GetPlayerById(i);
 
@@ -80,17 +83,14 @@ void CFeatures::UpdatePlayers()
 		player_soldier.m_vOrigin = cPlayerSoldier->location;
 		player_soldier.m_vBoundBoxMax = Vector(cPlayerSoldier->GetAABB().max.x, cPlayerSoldier->GetAABB().max.y, cPlayerSoldier->GetAABB().max.z);
 		player_soldier.m_vBoundBoxMin = Vector(cPlayerSoldier->GetAABB().min.x, cPlayerSoldier->GetAABB().min.y, cPlayerSoldier->GetAABB().max.z);
-		this->g_ExtraPlayers.push_back(player_soldier);
-
-		bone_players_data_s player_bone;
 		Vector vCurrentBone;
 		cPlayerSoldier->GetBonePos(UpdatePoseResultData::BONES::BONE_HEAD, vCurrentBone);
-		player_bone.vBoneOrigin[BONE::HEAD] = vCurrentBone;
+		player_soldier.vBoneOrigin[BONE::HEAD] = vCurrentBone;
 		cPlayerSoldier->GetBonePos(UpdatePoseResultData::BONES::BONE_NECK, vCurrentBone);
-		player_bone.vBoneOrigin[BONE::NECK] = vCurrentBone;
+		player_soldier.vBoneOrigin[BONE::NECK] = vCurrentBone;
 		cPlayerSoldier->GetBonePos(UpdatePoseResultData::BONES::BONE_SPINE, vCurrentBone);
-		player_bone.vBoneOrigin[BONE::SPINE] = vCurrentBone;
-		this->g_PlayersBone.push_back(player_bone);
+		player_soldier.vBoneOrigin[BONE::SPINE] = vCurrentBone;
+		this->g_ExtraPlayers.push_back(player_soldier);
 	}
 
 	for (auto p : this->g_Players)
@@ -122,7 +122,6 @@ void CFeatures::ClearPlayersData()
 {
 	this->g_Players.clear();
 	this->g_ExtraPlayers.clear();
-	this->g_PlayersBone.clear();
 }
 
 void CFeatures::Debug()
@@ -172,8 +171,6 @@ void CFeatures::Aimbot()
 	bool isPressedMLeftButton = GetAsyncKeyState(VK_LBUTTON);
 	bool isPressedMRightButton = GetAsyncKeyState(VK_RBUTTON);
 
-	float flRecoil = get_recoil() / (24.f - vars::aimbot::recoil_compesation);
-
 	bool event = vars::aimbot::aiming_on_rmb ?
 		isPressedMLeftButton == false && isPressedMRightButton == false
 		: isPressedMLeftButton == false;
@@ -183,7 +180,7 @@ void CFeatures::Aimbot()
 
 	int iTarget = INT_MAX;
 
-	float flMaxClosetsToScreenCenter = FLT_MAX;
+	float flMaxClosetsToScreenCenter = flFov;
 
 	for (int i = 0; i < this->g_ExtraPlayers.size(); i++)
 	{
@@ -192,11 +189,22 @@ void CFeatures::Aimbot()
 
 		if (this->g_ExtraPlayers[i].m_InVehicle == false && this->g_ExtraPlayers[i].m_IsVisible == false)
 			continue;
-		
-		Vector vTarget = this->g_ExtraPlayers[i].m_vOrigin;
 
+		Vector vTarget;
+
+		if (this->g_ExtraPlayers[i].m_InVehicle)
+		{
+			vTarget = this->g_ExtraPlayers[i].m_vOrigin + this->g_ExtraPlayers[i].m_vBoundBoxMax;
+			if (vTarget.Distance(this->g_Local.m_vOrigin) > 100.f)
+				continue;
+		}
+		else
+		{
+			vTarget = this->g_ExtraPlayers[i].vBoneOrigin[iBone];
+		}
+		
 		float flScreenTarget[2];
-		if (W2S(vTarget, flScreenTarget))
+		if (WorldToScreen(vTarget, flScreenTarget))
 		{
 			float flDifferenceFromScreenCenter[2] = {
 				abs((ImGui::GetIO().DisplaySize.x / 2) - flScreenTarget[0]),
@@ -223,14 +231,11 @@ void CFeatures::Aimbot()
 	if (this->g_ExtraPlayers[iTarget].m_InVehicle)
 		vTarget = this->g_ExtraPlayers[iTarget].m_vOrigin + this->g_ExtraPlayers[iTarget].m_vBoundBoxMax;
 	else
-		vTarget = this->g_PlayersBone[iTarget].vBoneOrigin[iBone];
-
-	if (vars::aimbot::enable_recoil_compesation)
-		vTarget.y -= flRecoil;
+		vTarget = this->g_ExtraPlayers[iTarget].vBoneOrigin[iBone];
 
 	float flScreenTarget[2];
 
-	if (W2S(vTarget, flScreenTarget))
+	if (WorldToScreen(vTarget, flScreenTarget))
 	{
 		float flScreenCenter[2] = {
 			ImGui::GetIO().DisplaySize.x / 2.f,
@@ -271,11 +276,15 @@ void CFeatures::Aimbot()
 			}
 		}
 
+		float flRecoil = vTarget.Distance(this->g_Local.m_vOrigin) > 70.f
+			? 0.f : vars::aimbot::smooth > 0.f ? get_recoil() * vars::aimbot::recoil_compesation / ((ImClamp(flAimSpeed, 0.2f, 0.5f) + 1.f) * 2.f)
+			: get_recoil() * vars::aimbot::recoil_compesation;
+
 		POINT point;
 		GetCursorPos(&point);
 		point.x += flTarget[0];
-		point.y += flTarget[1];
-		SendMessage(globals::hGame, WM_MOUSEMOVE, 0, MAKELPARAM(point.x, point.y));
+		point.y += flTarget[1] + flRecoil;
+		SendMessage(globals::hGame, WM_MOUSEMOVE, 0, MAKELPARAM(point.x, point.y));	
 	}
 }
 
@@ -305,7 +314,7 @@ void CFeatures::PlayerESP()
 		this->Draw3DCircle(vBot, col_box);
 
 		float flTop[2], flBot[2];
-		if (W2S(vTop, flTop) && W2S(vBot, flBot))
+		if (WorldToScreen(vTop, flTop) && WorldToScreen(vBot, flBot))
 		{
 			float h = flBot[1] - flTop[1];
 			float w = h / 2;

@@ -3,6 +3,10 @@
 namespace vars
 {
 	bool bMenuOpen = false;
+	namespace global
+	{
+		bool enable;
+	}
 	namespace aimbot
 	{
 		bool enable = false;
@@ -43,12 +47,14 @@ namespace vars
 		bool debug = false;
 	}
 	void load_default_settings() {
+		global::enable = true;
+
 		aimbot::enable = true;
 		aimbot::only_enemy = true;
 		aimbot::fov = 50.f;
 		aimbot::smooth = 0.f;
 		aimbot::enable_recoil_compesation = true;
-		aimbot::recoil_compesation = 10.f;
+		aimbot::recoil_compesation = 1.05f;
 		aimbot::bone = 0;
 		aimbot::aiming_on_rmb = true;
 		aimbot::disable_on_vehicle = true;
@@ -60,7 +66,7 @@ namespace vars
 		vars::visuals::radar_3d = true;
 		vars::visuals::offscreen = true;
 		vars::visuals::max_distance_offscreen = 100.f;
-		vars::visuals::distance = false;
+		vars::visuals::distance = true;
 
 		visuals::col_enemy_vis[0] = 1.f;
 		visuals::col_enemy_vis[1] = 1.f;

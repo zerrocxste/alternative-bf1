@@ -1,6 +1,10 @@
 namespace vars
 {
 	extern bool bMenuOpen;
+	namespace global
+	{
+		extern bool enable;
+	}
 	namespace aimbot
 	{
 		extern bool enable;
