@@ -18,6 +18,9 @@ namespace vars
 		int bone = 0;
 		bool aiming_on_rmb = false;
 		bool disable_on_vehicle = false;
+		bool no_recoil = false;
+		bool increase_fire_rate = false;
+		bool weapon_no_overheating = false;
 	}
 	namespace visuals
 	{
@@ -58,15 +61,18 @@ namespace vars
 		aimbot::bone = 0;
 		aimbot::aiming_on_rmb = true;
 		aimbot::disable_on_vehicle = true;
+		aimbot::no_recoil = false;
+		aimbot::increase_fire_rate = false;
+		aimbot::weapon_no_overheating = false;
 
 		visuals::player_type = 0;
 		visuals::box_type = 4;
 		visuals::name = true;
 		visuals::health = true;
-		vars::visuals::radar_3d = true;
-		vars::visuals::offscreen = true;
-		vars::visuals::max_distance_offscreen = 100.f;
-		vars::visuals::distance = true;
+		visuals::radar_3d = true;
+		visuals::offscreen = true;
+		visuals::max_distance_offscreen = 100.f;
+		visuals::distance = true;
 
 		visuals::col_enemy_vis[0] = 1.f;
 		visuals::col_enemy_vis[1] = 1.f;

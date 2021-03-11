@@ -16,6 +16,9 @@ namespace vars
 		extern int bone;
 		extern bool aiming_on_rmb;
 		extern bool disable_on_vehicle;
+		extern bool no_recoil;
+		extern bool increase_fire_rate;
+		extern bool weapon_no_overheating;
 	}
 	namespace visuals
 	{

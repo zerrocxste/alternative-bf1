@@ -81,8 +81,8 @@ void CFeatures::UpdatePlayers()
 		player_soldier.m_flMaxHealth = cPlayerSoldier->healthcomponent->m_MaxHealth;
 		player_soldier.m_InVehicle = false;
 		player_soldier.m_vOrigin = cPlayerSoldier->location;
-		player_soldier.m_vBoundBoxMax = Vector(cPlayerSoldier->GetAABB().max.x, cPlayerSoldier->GetAABB().max.y, cPlayerSoldier->GetAABB().max.z);
-		player_soldier.m_vBoundBoxMin = Vector(cPlayerSoldier->GetAABB().min.x, cPlayerSoldier->GetAABB().min.y, cPlayerSoldier->GetAABB().max.z);
+		player_soldier.m_vBoundBoxMax = cPlayerSoldier->GetAABB().max;
+		player_soldier.m_vBoundBoxMin = cPlayerSoldier->GetAABB().min;
 		Vector vCurrentBone;
 		cPlayerSoldier->GetBonePos(UpdatePoseResultData::BONES::BONE_HEAD, vCurrentBone);
 		player_soldier.vBoneOrigin[BONE::HEAD] = vCurrentBone;
@@ -300,16 +300,8 @@ void CFeatures::PlayerESP()
 
 		auto col_box = PlayerColor(p.m_iTeam, p.m_InVehicle, p.m_IsVisible);
 			
-		Vector vTop;
-		Vector vBot;
-
-		vTop = p.m_vOrigin + p.m_vBoundBoxMax;
-		vBot = p.m_vOrigin + p.m_vBoundBoxMin;
-
-		vTop.x += 0.389002f;
-		vBot.x += 0.389002f;
-		vTop.z += -0.35f;
-		vBot.z += -0.35f;
+		auto vTop = p.m_vOrigin + p.m_vBoundBoxMax;
+		auto vBot = p.m_vOrigin + p.m_vBoundBoxMin;
 	
 		this->Draw3DCircle(vBot, col_box);
 
@@ -415,6 +407,16 @@ void CFeatures::ScreenInfo()
 	ImGui::PopStyleVar();
 }
 
+auto deg_to_rad = [](float x)
+{
+	return ((float)(x) * (float)(IM_PI / 180.f));
+};
+
+auto rad_to_deg = [](float x)
+{
+	return (float)(x) * (float)(180.f / IM_PI);
+};
+
 void VectorAnglesRadar(Vector& forward, Vector& angles)
 {
 	if (forward.x == 0.f && forward.y == 0.f)
@@ -424,8 +426,8 @@ void VectorAnglesRadar(Vector& forward, Vector& angles)
 	}
 	else
 	{
-		angles.x = RAD2DEG(atan2(-forward.z, forward.Length2D()));
-		angles.y = RAD2DEG(atan2(forward.y, forward.x));
+		angles.x = rad_to_deg(atan2(-forward.z, forward.Length2D()));
+		angles.y = rad_to_deg(atan2(forward.y, forward.x));
 	}
 	angles.z = 0.f;
 }
@@ -440,7 +442,7 @@ void RotateTriangle(std::array<Vector, 3>& points, float rotation)
 		const auto temp_x = point.x;
 		const auto temp_y = point.y;
 
-		const auto theta = DEG2RAD(rotation);
+		const auto theta = deg_to_rad(rotation);
 		const auto c = cosf(theta);
 		const auto s = sinf(theta);
 
@@ -524,7 +526,7 @@ void CFeatures::DrawScreen(Vector origin, Vector myOrigin, float myYaw, ImColor 
 	auto angle = Vector();
 	VectorAnglesRadar(Vector((float)(ImGui::GetIO().DisplaySize.x / 2) - x, (float)(ImGui::GetIO().DisplaySize.y / 2) - y, 0.f), angle);
 
-	const auto angle_yaw_rad = DEG2RAD(angle.y + 180.f);
+	const auto angle_yaw_rad = deg_to_rad(angle.y + 180.f);
 	const auto new_point_x = (ImGui::GetIO().DisplaySize.x / 2) + (radar_range) / 2 * 8 * cosf(angle_yaw_rad);
 	const auto new_point_y = (ImGui::GetIO().DisplaySize.y / 2) + (radar_range) / 2 * 8 * sinf(angle_yaw_rad);
 
@@ -572,4 +574,22 @@ ImColor CFeatures::PlayerColor(int iTeam, bool isVehicle, const bool isVisible)
 	}
 	else
 		return ImColor(1.f, 1.f, 1.f);
+}
+
+//I'm sorry, but I cannot leave the code of the three lower functions, as they introduce too much disbalance, there are too many people in the game that are running around invisible to other players. 
+//I don't want other people to spoil the experience of this cool game.
+
+void CFeatures::InrecreaseFireRate(bool bIsEnable)
+{
+
+}
+
+void CFeatures::NoRecoil(bool bIsEnable)
+{
+
+}
+
+void CFeatures::NoOverheatingWeapon(bool bIsEnable)
+{
+
 }

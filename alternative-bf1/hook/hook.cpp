@@ -8,10 +8,37 @@ fSetCursorPos pSetCursorPos = NULL;
 using fPresent = HRESULT(__fastcall*)(IDXGISwapChain*, UINT, UINT);
 fPresent pPresent = NULL;
 
+using fResizeBuffers = HRESULT(__fastcall*)(IDXGISwapChain*, UINT, UINT, UINT, DXGI_FORMAT, UINT);
+fResizeBuffers pResizeBuffers = NULL;
+
 IDXGISwapChain* swapchain = nullptr;
 ID3D11Device* device = nullptr;
 ID3D11DeviceContext* context = nullptr;
 ID3D11RenderTargetView* render_view = nullptr;
+
+static bool renderview_lost = true;
+
+enum IDXGISwapChainvTable //for dx10 / dx11
+{
+	QUERY_INTERFACE,
+	ADD_REF,
+	RELEASE,
+	SET_PRIVATE_DATA,
+	SET_PRIVATE_DATA_INTERFACE,
+	GET_PRIVATE_DATA,
+	GET_PARENT,
+	GET_DEVICE,
+	PRESENT,
+	GET_BUFFER,
+	SET_FULLSCREEN_STATE,
+	GET_FULLSCREEN_STATE,
+	GET_DESC,
+	RESIZE_BUFFERS,
+	RESIZE_TARGET,
+	GET_CONTAINING_OUTPUT,
+	GET_FRAME_STATISTICS,
+	GET_LAST_PRESENT_COUNT
+};
 
 void InitImGui()
 {
@@ -135,7 +162,7 @@ void BeginScene()
 
 HRESULT __fastcall Present_Hooked(IDXGISwapChain* pChain, UINT SyncInterval, UINT Flags)
 {
-	static auto once = [pChain, SyncInterval, Flags]()
+	if (renderview_lost)
 	{
 		if (SUCCEEDED(pChain->GetDevice(__uuidof(ID3D11Device), (void**)&device)))
 		{
@@ -146,10 +173,15 @@ HRESULT __fastcall Present_Hooked(IDXGISwapChain* pChain, UINT SyncInterval, UIN
 			device->CreateRenderTargetView(pBackBuffer, NULL, &render_view);
 			pBackBuffer->Release();
 
-			InitImGui();
-
-			std::cout << __FUNCTION__ << " first called!" << std::endl;
+			std::cout << __FUNCTION__ << " > renderview successfully received!" << std::endl;
+			renderview_lost = false;
 		}
+	}
+
+	static auto once = [pChain, SyncInterval, Flags]()
+	{
+		InitImGui();
+		std::cout << __FUNCTION__ << " > first called!" << std::endl;
 		return true;
 	}();
 
@@ -158,6 +190,25 @@ HRESULT __fastcall Present_Hooked(IDXGISwapChain* pChain, UINT SyncInterval, UIN
 	BeginScene();
 
 	return pPresent(pChain, SyncInterval, Flags);
+}
+
+HRESULT __fastcall ResizeBuffers_hooked(IDXGISwapChain* pChain, UINT BufferCount, UINT Width, UINT Height, DXGI_FORMAT NewFormat, UINT Flags)
+{
+	static auto once = []()
+	{
+		std::cout << __FUNCTION__ << " > first called!" << std::endl;
+		return true;
+	}();
+
+	render_view->Release();
+	render_view = nullptr;
+	renderview_lost = true;
+
+	ImGui_ImplDX11_CreateDeviceObjects();
+
+	ImGui_ImplDX11_InvalidateDeviceObjects();
+
+	return pResizeBuffers(pChain, BufferCount, Width, Height, NewFormat, Flags);
 }
 
 BOOL WINAPI SetCursorPosHooked(int x, int y)
@@ -260,16 +311,20 @@ void CHook::SetupDX11Hook()
 
 	void** pVTableSwapChain = *reinterpret_cast<void***>(swapchain);
 
-	this->pPresentAddress = reinterpret_cast<LPVOID>(pVTableSwapChain[8]);
+	this->pPresentAddress = reinterpret_cast<LPVOID>(pVTableSwapChain[IDXGISwapChainvTable::PRESENT]);
+	this->pResizeBuffersAddress = reinterpret_cast<LPVOID>(pVTableSwapChain[IDXGISwapChainvTable::RESIZE_BUFFERS]);
 
-	if (MH_CreateHook(this->pPresentAddress, &Present_Hooked, (LPVOID*)&pPresent) != MH_OK)
+	if (MH_CreateHook(this->pPresentAddress, &Present_Hooked, (LPVOID*)&pPresent) != MH_OK
+		|| MH_EnableHook(this->pPresentAddress) != MH_OK)
 	{ 
-		std::cout << "failed create hook\n";
+		std::cout << "failed create hook present\n";
 		return; 
 	}
-	if (MH_EnableHook(this->pPresentAddress) != MH_OK)
-	{ 
-		std::cout << "failed enable hook\n";
+
+	if (MH_CreateHook(pResizeBuffersAddress, &ResizeBuffers_hooked, (LPVOID*)&pResizeBuffers) != MH_OK
+		|| MH_EnableHook(pResizeBuffersAddress) != MH_OK)
+	{
+		std::cout << "failed create hook resizebuffers\n";
 		return;
 	}
 }

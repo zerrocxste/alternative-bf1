@@ -39,6 +39,12 @@ public:
 	void ScreenInfo();
 
 	void Debug();
+
+	void InrecreaseFireRate(bool bIsEnable);
+
+	void NoRecoil(bool bIsEnable);
+
+	void NoOverheatingWeapon(bool bIsEnable);
 private:
 	bool UpdateLocalPlayer();
 

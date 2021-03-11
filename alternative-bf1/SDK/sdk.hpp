@@ -1,9 +1,6 @@
 #ifndef _SDK_HPP
 #define _SDK_HPP
 
-/* Includes for this file */
-#include <Windows.h>
-
 #define OFFSET_CLIENTGAMECONTEXT 0x1437F7758
 #define OFFSET_GAMERENDERER 0x1439e6d08
 #define OFFSET_OBFUSCATEMGR 0x14351D058
@@ -232,18 +229,18 @@ public:
 
 		if (this->poseType == 0) // standing
 		{
-			aabb.min = Vector(-0.350000f, 0.000000f, -0.350000f);
-			aabb.max = Vector(0.350000f, 1.700000f, 0.350000f);
+			aabb.min = Vector(0.f, 0.f, 0.f);
+			aabb.max = Vector(0.f, 1.700000f, 0.f);
 		}
 		if (this->poseType == 1) // crouching
 		{
-			aabb.min = Vector(-0.350000f, 0.000000f, -0.350000f);
-			aabb.max = Vector(0.350000f, 1.150000f, 0.350000f);
+			aabb.min = Vector(0.f, 0.f, 0.f);
+			aabb.max = Vector(0.f, 1.150000f, 0.f);
 		}
 		if (this->poseType == 2) // prone
 		{
-			aabb.min = Vector(-0.350000f, 0.000000f, -0.350000f);
-			aabb.max = Vector(0.350000f, 0.400000f, 0.350000f);
+			aabb.min = Vector(0.f, 0.f, 0.f);
+			aabb.max = Vector(0.f, 0.400000f, 0.f);
 		}
 		return aabb;
 	}

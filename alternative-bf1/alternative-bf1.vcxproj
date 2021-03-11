@@ -133,7 +133,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
@@ -167,13 +167,13 @@
     <ClCompile Include="imgui\imgui_widgets.cpp" />
     <ClCompile Include="math\qangle\qangle.cpp" />
     <ClCompile Include="math\vector\vector.cpp" />
+    <ClCompile Include="memory_utils\memory_utils.cpp" />
     <ClCompile Include="menu\fonts.cpp" />
     <ClCompile Include="menu\menu.cpp" />
     <ClCompile Include="SDK\sdk.cpp" />
     <ClCompile Include="vars\vars.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="defines.h" />
     <ClInclude Include="draw-list\draw-list.h" />
     <ClInclude Include="features\features.h" />
     <ClInclude Include="globals.h" />
@@ -190,6 +190,7 @@
     <ClInclude Include="math\martix4x4\matrix4x4.h" />
     <ClInclude Include="math\qangle\qangle.h" />
     <ClInclude Include="math\vector\vector.h" />
+    <ClInclude Include="memory_utils\memory_utils.h" />
     <ClInclude Include="menu\fonts.h" />
     <ClInclude Include="menu\menu.h" />
     <ClInclude Include="minhook\minhook.h" />

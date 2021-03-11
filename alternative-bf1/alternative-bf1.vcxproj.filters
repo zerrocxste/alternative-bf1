@@ -40,6 +40,9 @@
     <Filter Include="source\menu">
       <UniqueIdentifier>{348e3faa-eedc-48a3-893f-29b76084732a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="source\memory_utils">
+      <UniqueIdentifier>{50386862-9ae5-4552-918d-2d238dc2c20f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -96,6 +99,9 @@
     <ClCompile Include="menu\fonts.cpp">
       <Filter>source\menu</Filter>
     </ClCompile>
+    <ClCompile Include="memory_utils\memory_utils.cpp">
+      <Filter>source\memory_utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="globals.h">
@@ -134,9 +140,6 @@
     <ClInclude Include="imgui\imstb_truetype.h">
       <Filter>imgui</Filter>
     </ClInclude>
-    <ClInclude Include="defines.h">
-      <Filter>source</Filter>
-    </ClInclude>
     <ClInclude Include="vars\vars.h">
       <Filter>source\vars</Filter>
     </ClInclude>
@@ -166,6 +169,9 @@
     </ClInclude>
     <ClInclude Include="menu\fonts.h">
       <Filter>source\menu</Filter>
+    </ClInclude>
+    <ClInclude Include="memory_utils\memory_utils.h">
+      <Filter>source\memory_utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

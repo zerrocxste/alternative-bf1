@@ -11,8 +11,6 @@
 #include <vector>
 #include <time.h>
 
-#include "defines.h"
-
 #include "globals.h"
 #include "vars/vars.h"
 
@@ -21,6 +19,8 @@
 
 #include <d3d11.h>
 #pragma comment(lib, "d3d11")
+
+#include "memory_utils/memory_utils.h"
 
 #include "imgui/imgui.h"
 #include "imgui/imgui_internal.h"
@@ -39,3 +39,4 @@
 #include "hook/hook.h"
 #include "draw-list/draw-list.h"
 #include "features/features.h"
+

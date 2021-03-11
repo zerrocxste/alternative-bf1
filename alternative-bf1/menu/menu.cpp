@@ -462,18 +462,48 @@ void CMenu::Run()
 	{
 		ImGui::BeginChild("Aimbot", ImVec2(), true);
 
-		ImGui::Checkbox("Enable", &vars::aimbot::enable);
-		ImGui::SameLine();
-		ImGui::Checkbox("Only enemy", &vars::aimbot::only_enemy);
-		ImGui::SliderFloat("Field of view", &vars::aimbot::fov, 0.f, 90.f);
-		ImGui::SliderFloat("Smooth", &vars::aimbot::smooth, 0.f, 5.f);
-		ImGui::Checkbox("Recoil compesation", &vars::aimbot::enable_recoil_compesation);
-		if (vars::aimbot::enable_recoil_compesation)
-			ImGui::SliderFloat("Recoil compesation value", &vars::aimbot::recoil_compesation, 0.f, 22.f);
-		const char* pcszBones[] = { "Head", "Neck", "Body" };
-		ImGui::Combo("Bone", &vars::aimbot::bone, pcszBones, IM_ARRAYSIZE(pcszBones));
-		ImGui::Checkbox("Aiming on RMB", &vars::aimbot::aiming_on_rmb);
-		ImGui::Checkbox("Disable if yourself in vehicle", &vars::aimbot::disable_on_vehicle);
+		static int i_aimbot_tabs = 0;
+		const char* csz_aimbot_tabs[] = { "Undetected functional", "Potentially unsafe functionality (!)" };
+		menu_utils::tabs(csz_aimbot_tabs, IM_ARRAYSIZE(csz_aimbot_tabs), ImVec2(ImGui::GetContentRegionAvail().x / 2.f, 20), i_aimbot_tabs);
+
+		if (i_aimbot_tabs == 0)
+		{
+			ImGui::Checkbox("Enable", &vars::aimbot::enable);
+			ImGui::SameLine();
+			ImGui::Checkbox("Only enemy", &vars::aimbot::only_enemy);
+			ImGui::SliderFloat("Field of view", &vars::aimbot::fov, 0.f, 90.f);
+			ImGui::SliderFloat("Smooth", &vars::aimbot::smooth, 0.f, 5.f);
+			ImGui::Checkbox("Recoil compesation", &vars::aimbot::enable_recoil_compesation);
+			if (vars::aimbot::enable_recoil_compesation)
+				ImGui::SliderFloat("Recoil compesation value", &vars::aimbot::recoil_compesation, 0.f, 22.f);
+			const char* pcszBones[] = { "Head", "Neck", "Body" };
+			ImGui::Combo("Bone", &vars::aimbot::bone, pcszBones, IM_ARRAYSIZE(pcszBones));
+			ImGui::Checkbox("Aiming on RMB", &vars::aimbot::aiming_on_rmb);
+			ImGui::Checkbox("Disable if yourself in vehicle", &vars::aimbot::disable_on_vehicle);
+		}
+		else
+		{
+			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.f, 0.5f, 0.5f, 1.f));
+			std::string increase_fire_rate_label = vars::aimbot::increase_fire_rate == false ? "Enable increase fire rate"  : "Disable increase fire rate";
+			if (ImGui::Button(increase_fire_rate_label.c_str(), ImVec2(ImGui::GetWindowSize().x - 15.f, 40)))
+			{
+				vars::aimbot::increase_fire_rate = !vars::aimbot::increase_fire_rate;
+				m_pFeatures->InrecreaseFireRate(vars::aimbot::increase_fire_rate);
+			}
+			std::string no_recoil_label = vars::aimbot::no_recoil == false ? "Enable no recoil" : "Disable no recoil";
+			if (ImGui::Button(no_recoil_label.c_str(), ImVec2(ImGui::GetWindowSize().x - 15.f, 40)))
+			{
+				vars::aimbot::no_recoil = !vars::aimbot::no_recoil;
+				m_pFeatures->NoRecoil(vars::aimbot::no_recoil);
+			}
+			std::string no_weapon_overheating_label = vars::aimbot::weapon_no_overheating == false ? "Enable weapon no overheating" : "Disable weapon no overheating";
+			if (ImGui::Button(no_weapon_overheating_label.c_str(), ImVec2(ImGui::GetWindowSize().x - 15.f, 40)))
+			{
+				vars::aimbot::weapon_no_overheating = !vars::aimbot::weapon_no_overheating;
+				m_pFeatures->NoOverheatingWeapon(vars::aimbot::weapon_no_overheating);
+			}
+			ImGui::PopStyleColor();
+		}
 
 		ImGui::EndChild();
 	}
