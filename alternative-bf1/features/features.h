@@ -20,8 +20,10 @@ struct extra_players_data_s
 	int m_Index;
 	char* m_cszName;
 	int m_iTeam;
-	float m_flHeath;
-	float m_flMaxHealth;
+	float m_flPlayerHealth;
+	float m_flMaxPlayerHealth;
+	float m_flVehicleHealth;
+	float m_flMaxVehicleHealth;
 	bool m_IsVisible;
 	bool m_InVehicle;
 	float m_flYaw;
@@ -29,6 +31,14 @@ struct extra_players_data_s
 	Vector m_vBoundBoxMax;
 	Vector m_vBoundBoxMin;
 	Vector vBoneOrigin[4];
+};
+
+enum LINE_STATUS_BAR
+{
+	LEFT,
+	RIGHT,
+	UPPER,
+	BOTTOM
 };
 
 class CFeatures
@@ -64,7 +74,7 @@ private:
 
 	void DrawName(const char* pcszPlayerName, float x, float y, float w, ImColor col);
 
-	void DrawHealth(float x, float y, float h, float health, float max_health, ImColor col);
+	void DrawStatusLine(float x, float y, float w, float h, float status_value, float max_of_status_value, ImColor col, LINE_STATUS_BAR status_side = LINE_STATUS_BAR::LEFT);
 
 	void DrawDistance(float x, float y, float w, float h, float distance);
 

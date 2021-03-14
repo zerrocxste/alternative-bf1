@@ -51,7 +51,7 @@ BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lParam)
 
 		if (process_id_that_interests_us_very_much == process_id && !strstr(text_window, ".exe"))
 		{
-			//std::cout << "Window: " << text_window << std::endl;
+			std::cout << "Window: " << text_window << std::endl;
 			*cur_hwnd = hwnd;
 			return 0;
 		}
@@ -79,7 +79,6 @@ void SetupHackThread(void)
 
 	//setup / setup hook
 
-	HWND handle_wnd = NULL;
 	EnumWindows(&EnumWindowsProc, (LPARAM)&globals::hGame);
 
 	RAISE_ERROR(globals::hGame, "Error find window", "window handle: ")

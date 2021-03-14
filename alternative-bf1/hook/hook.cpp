@@ -276,30 +276,7 @@ void CHook::SetupDX11Hook()
 	scd.OutputWindow = globals::hGame;
 	scd.SampleDesc.Count = 1;
 	scd.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
-
-	bool isWindowed = false; // kekw
-
-	auto style = GetWindowLong(globals::hGame, GWL_STYLE);
-
-	bool isBORDERLESS = style & WS_POPUP;
-	bool isFULLSCREEN_OR_WINDOWED = style & WS_CAPTION;
-	bool isFULLSCREEN = style & WS_MINIMIZE;
-
-	if (isBORDERLESS) {
-		
-		std::cout << "this shit is borderless\n";
-		isWindowed = true;
-	}
-	else if (isFULLSCREEN_OR_WINDOWED) {
-		if (isFULLSCREEN)
-			std::cout << "this shit is fullscreen\n";
-		else {
-			std::cout << "this shit is windowed\n";
-			isWindowed = true;
-		}
-	}
-
-	scd.Windowed = isWindowed;
+	scd.Windowed = TRUE;
 	scd.BufferDesc.RefreshRate.Numerator = 60;
 	scd.BufferDesc.RefreshRate.Denominator = 1;
 

@@ -464,7 +464,7 @@ void CMenu::Run()
 
 		static int i_aimbot_tabs = 0;
 		const char* csz_aimbot_tabs[] = { "Undetected functional", "Potentially unsafe functionality (!)" };
-		menu_utils::tabs(csz_aimbot_tabs, IM_ARRAYSIZE(csz_aimbot_tabs), ImVec2(ImGui::GetContentRegionAvail().x / 2.f, 20), i_aimbot_tabs);
+		menu_utils::tabs(csz_aimbot_tabs, IM_ARRAYSIZE(csz_aimbot_tabs), ImVec2(ImGui::GetContentRegionAvail().x / 2.f, 20), i_aimbot_tabs, -4.f);
 
 		if (i_aimbot_tabs == 0)
 		{

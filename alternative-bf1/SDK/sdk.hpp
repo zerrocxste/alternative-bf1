@@ -147,11 +147,8 @@ public:
 		return Vector(min.x, min.y, min.z);
 	}
 
-	bool IsValid() { //mb?
-		return (this->GetHealthComponent()->m_Health > 0.1f && this->GetHealthComponent()->m_Health <= this->GetHealthComponent()->m_MaxHealth);
-	}
 	bool IsDead() {
-		return !(this->GetHealthComponent()->m_Health > 0.1f);
+		return !(this->GetHealthComponent()->m_VehicleHealth > 0.1f);
 	}
 
 }; //Size: 0x0048

@@ -77,8 +77,8 @@ void CFeatures::UpdatePlayers()
 		player_soldier.m_cszName = p.m_cszName;
 		player_soldier.m_iTeam = p.m_iTeam;
 		player_soldier.m_IsVisible = !cPlayerSoldier->occluded;
-		player_soldier.m_flHeath = cPlayerSoldier->healthcomponent->m_Health;
-		player_soldier.m_flMaxHealth = cPlayerSoldier->healthcomponent->m_MaxHealth;
+		player_soldier.m_flPlayerHealth = cPlayerSoldier->healthcomponent->m_Health;
+		player_soldier.m_flMaxPlayerHealth = cPlayerSoldier->healthcomponent->m_MaxHealth;
 		player_soldier.m_InVehicle = false;
 		player_soldier.m_vOrigin = cPlayerSoldier->location;
 		player_soldier.m_vBoundBoxMax = cPlayerSoldier->GetAABB().max;
@@ -100,6 +100,11 @@ void CFeatures::UpdatePlayers()
 		if (!IsValidPtr(cVehicleSoldier))
 			continue;
 
+		auto* cEntityData = cVehicleSoldier->GetEntityData();
+
+		if (!IsValidPtr(cEntityData))
+			continue;
+
 		if (cVehicleSoldier->IsDead())
 			continue;
 
@@ -108,8 +113,10 @@ void CFeatures::UpdatePlayers()
 		player_on_vehicle.m_cszName = p.m_cszName;
 		player_on_vehicle.m_iTeam = p.m_iTeam;
 		player_on_vehicle.m_IsVisible = true;
-		player_on_vehicle.m_flHeath = cVehicleSoldier->GetHealthComponent()->m_Health;
-		player_on_vehicle.m_flMaxHealth = cVehicleSoldier->GetHealthComponent()->m_MaxHealth;
+		player_on_vehicle.m_flPlayerHealth = cVehicleSoldier->GetHealthComponent()->m_Health;
+		player_on_vehicle.m_flMaxPlayerHealth = cVehicleSoldier->GetHealthComponent()->m_MaxHealth;
+		player_on_vehicle.m_flVehicleHealth = cVehicleSoldier->GetHealthComponent()->m_VehicleHealth;
+		player_on_vehicle.m_flMaxVehicleHealth = cEntityData->m_FrontMaxHealth;
 		player_on_vehicle.m_InVehicle = true;
 		player_on_vehicle.m_vOrigin = cVehicleSoldier->GetVehiclePosition();
 		player_on_vehicle.m_vBoundBoxMin = Vector();
@@ -317,7 +324,10 @@ void CFeatures::PlayerESP()
 
 			this->DrawName(p.m_cszName, x, y, w, col_box);
 
-			this->DrawHealth(x, y, h, p.m_flHeath, p.m_flMaxHealth, col_box);
+			if (p.m_InVehicle)
+				this->DrawStatusLine(x, y, w, h, p.m_flVehicleHealth, p.m_flMaxVehicleHealth, ImColor(0.f, 0.f, 1.f), LINE_STATUS_BAR::RIGHT);
+
+			this->DrawStatusLine(x, y, w, h, p.m_flPlayerHealth, p.m_flMaxPlayerHealth, ImColor(0.f, 1.f, 0.f), LINE_STATUS_BAR::LEFT);
 
 			this->DrawDistance(x, y, w, h, p.m_vOrigin.Distance(this->g_Local.m_vOrigin));
 		}
@@ -347,20 +357,50 @@ void CFeatures::DrawName(const char *pcszPlayerName, float x, float y, float w, 
 	m_pDrawing->AddText(x + w / 2.f, y - text_size.y - 2.f, ImColor(1.f, 1.f, 1.f, col.Value.w), vars::font::size, FL_CENTER_X, u8"%s", pcszPlayerName);
 }
 
-void CFeatures::DrawHealth(float x, float y, float h, float health, float max_health, ImColor col)
+void CFeatures::DrawStatusLine(float x, float y, float w, float h, float status_value, float max_of_status_value, ImColor col, LINE_STATUS_BAR status_side)
 {
-	if (vars::visuals::health == false)
+	if (status_value <= 0.f)
 		return;
 
-	health = ImClamp(health, 0.f, max_health);
+	status_value = ImClamp(status_value, 0.f, max_of_status_value);
 
-	const auto size = h / max_health * health;
+	const auto size_h = h / max_of_status_value * status_value;
+	const auto size_w = w / max_of_status_value * status_value;
+
 	const auto thickness = 2.f;
 
-	m_pDrawing->DrawFillArea(x - thickness - 1.9f, y + h, thickness, -size, ImColor(0.f, 1.f, 0.f, col.Value.w));
+	switch (status_side)
+	{
+	case LINE_STATUS_BAR::LEFT:
+		m_pDrawing->DrawFillArea(x - thickness - 1.9f, y + h, thickness, -size_h, ImColor(col.Value.x, col.Value.y, col.Value.z, col.Value.w));
 
-	if (vars::visuals::box_type == 2 || vars::visuals::box_type == 4 || vars::visuals::box_type == 6)
-		m_pDrawing->DrawBox(x - thickness - 2.9f, y - 1.f, thickness + 2.f, h + 2.f, ImColor(0.f, 0.f, 0.f, col.Value.w));
+		if (vars::visuals::box_type == 2 || vars::visuals::box_type == 4 || vars::visuals::box_type == 6)
+			m_pDrawing->DrawBox(x - thickness - 2.9f, y - 1.f, thickness + 2.f, h + 2.f, ImColor(0.f, 0.f, 0.f, col.Value.w));
+
+		break;
+	case LINE_STATUS_BAR::RIGHT:
+		m_pDrawing->DrawFillArea(x + w - thickness + (2.9f * 2.f), y + h, thickness, -size_h, ImColor(col.Value.x, col.Value.y, col.Value.z, col.Value.w));
+
+		if (vars::visuals::box_type == 2 || vars::visuals::box_type == 4 || vars::visuals::box_type == 6)
+			m_pDrawing->DrawBox(x + w - thickness + (2.9f * 2.f) - 0.9f, y - 1.f, thickness + 2.f, h + 2.f, ImColor(0.f, 0.f, 0.f, col.Value.w));
+
+		break;
+	case LINE_STATUS_BAR::UPPER:
+		m_pDrawing->DrawFillArea(x, y - thickness - 1.9f, size_w + 1.9f, thickness, ImColor(col.Value.x, col.Value.y, col.Value.z, col.Value.w));
+
+		if (vars::visuals::box_type == 2 || vars::visuals::box_type == 4 || vars::visuals::box_type == 6)
+			m_pDrawing->DrawBox(x - 1.9f, y - thickness - 2.9f, w + 3.9f, thickness + 2.f, ImColor(0.f, 0.f, 0.f, col.Value.w));
+
+		break;
+	case LINE_STATUS_BAR::BOTTOM:
+		m_pDrawing->DrawFillArea(x, y + h + thickness + 0.9f, size_w + 1.9f, thickness, ImColor(col.Value.x, col.Value.y, col.Value.z, col.Value.w));
+
+		if (vars::visuals::box_type == 2 || vars::visuals::box_type == 4 || vars::visuals::box_type == 6)
+			m_pDrawing->DrawBox(x - 1.9f, y + h + thickness, w + 3.9f, thickness + 2.f, ImColor(0.f, 0.f, 0.f, col.Value.w));
+
+		break;
+	default: break;
+	}
 }
 
 void CFeatures::DrawDistance(float x, float y, float w, float h, float distance)
@@ -368,7 +408,7 @@ void CFeatures::DrawDistance(float x, float y, float w, float h, float distance)
 	if (vars::visuals::distance == false)
 		return;
 
-	m_pDrawing->AddText(x + w / 2.f, y + h, ImColor(1.f, 1.f, 1.f), vars::font::size, FL_CENTER_X, "%.0f", distance);
+	m_pDrawing->AddText(x + w / 2.f, y + h + 4.9f, ImColor(1.f, 1.f, 1.f), vars::font::size, FL_CENTER_X, "%.0f", distance);
 }
 
 void CFeatures::Draw3DCircle(Vector vOrigin, ImColor col)
