@@ -118,6 +118,7 @@ void CFeatures::UpdatePlayers()
 		player_on_vehicle.m_flVehicleHealth = cVehicleSoldier->GetHealthComponent()->m_VehicleHealth;
 		player_on_vehicle.m_flMaxVehicleHealth = cEntityData->m_FrontMaxHealth;
 		player_on_vehicle.m_InVehicle = true;
+		player_on_vehicle.m_bIsHorse = cVehicleSoldier->IsHorse();
 		player_on_vehicle.m_vOrigin = cVehicleSoldier->GetVehiclePosition();
 		player_on_vehicle.m_vBoundBoxMin = Vector();
 		player_on_vehicle.m_vBoundBoxMax = Vector(0.f, 1.9f, 0.f);
@@ -195,6 +196,9 @@ void CFeatures::Aimbot()
 			continue;
 
 		if (this->g_ExtraPlayers[i].m_InVehicle == false && this->g_ExtraPlayers[i].m_IsVisible == false)
+			continue;
+
+		if (vars::aimbot::aim_from_vehicles_only_horse && this->g_ExtraPlayers[i].m_InVehicle && this->g_ExtraPlayers[i].m_bIsHorse == false)
 			continue;
 
 		Vector vTarget;
@@ -305,7 +309,7 @@ void CFeatures::PlayerESP()
 		if (vars::visuals::player_type == 0 && p.m_iTeam == this->g_Local.m_iTeam)
 			continue;
 
-		auto col_box = PlayerColor(p.m_iTeam, p.m_InVehicle, p.m_IsVisible);
+		auto col_box = PlayerColor(p.m_iTeam, p.m_InVehicle, p.m_bIsHorse, p.m_IsVisible);
 			
 		auto vTop = p.m_vOrigin + p.m_vBoundBoxMax;
 		auto vBot = p.m_vOrigin + p.m_vBoundBoxMin;
@@ -582,7 +586,7 @@ void CFeatures::DrawScreen(Vector origin, Vector myOrigin, float myYaw, ImColor 
 	m_pDrawing->AddTriangleFilled(ImVec2(points.at(0).x, points.at(0).y), ImVec2(points.at(1).x, points.at(1).y), ImVec2(points.at(2).x, points.at(2).y), col);
 }
 
-ImColor CFeatures::PlayerColor(int iTeam, bool isVehicle, const bool isVisible)
+ImColor CFeatures::PlayerColor(int iTeam, bool isVehicle, bool isHorse, const bool isVisible)
 {
 	if (iTeam == this->g_Local.m_iTeam)
 	{
@@ -595,7 +599,10 @@ ImColor CFeatures::PlayerColor(int iTeam, bool isVehicle, const bool isVisible)
 		}
 		else
 		{
-			return ImColor(vars::visuals::col_teammate_vehicle[0], vars::visuals::col_teammate_vehicle[1], vars::visuals::col_teammate_vehicle[2], 1.f);
+			if (isHorse)
+				return ImColor(vars::visuals::col_teammate_horse[0], vars::visuals::col_teammate_horse[1], vars::visuals::col_teammate_horse[2], 1.f);
+			else
+				return ImColor(vars::visuals::col_teammate_vehicle[0], vars::visuals::col_teammate_vehicle[1], vars::visuals::col_teammate_vehicle[2], 1.f);
 		}
 	}
 	else if (iTeam != this->g_Local.m_iTeam)
@@ -609,7 +616,10 @@ ImColor CFeatures::PlayerColor(int iTeam, bool isVehicle, const bool isVisible)
 		}
 		else
 		{
-			return ImColor(vars::visuals::col_enemy_vehicle[0], vars::visuals::col_enemy_vehicle[1], vars::visuals::col_enemy_vehicle[2], 1.f);
+			if (isHorse)
+				return ImColor(vars::visuals::col_enemy_horse[0], vars::visuals::col_enemy_horse[1], vars::visuals::col_enemy_horse[2], 1.f);
+			else
+				return ImColor(vars::visuals::col_enemy_vehicle[0], vars::visuals::col_enemy_vehicle[1], vars::visuals::col_enemy_vehicle[2], 1.f);
 		}
 	}
 	else

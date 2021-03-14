@@ -151,6 +151,11 @@ public:
 		return !(this->GetHealthComponent()->m_VehicleHealth > 0.1f);
 	}
 
+	bool IsHorse()
+	{
+		return this->GetHealthComponent()->m_Health > 0.1f;
+	}
+
 }; //Size: 0x0048
 
 class QuatTransform {

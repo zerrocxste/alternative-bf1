@@ -24,6 +24,7 @@ struct extra_players_data_s
 	float m_flMaxPlayerHealth;
 	float m_flVehicleHealth;
 	float m_flMaxVehicleHealth;
+	bool m_bIsHorse;
 	bool m_IsVisible;
 	bool m_InVehicle;
 	float m_flYaw;
@@ -68,7 +69,7 @@ private:
 
 	void DrawScreen(Vector origin, Vector myOrigin, float myYaw, ImColor col);
 
-	ImColor PlayerColor(int iTeam, bool isVehicle, const bool isVisible);
+	ImColor PlayerColor(int iTeam, bool isVehicle, bool isHorse, const bool isVisible);
 
 	void DrawBox(float x, float y, float w, float h, const ImColor col);
 

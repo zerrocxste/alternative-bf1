@@ -18,6 +18,7 @@ namespace vars
 		int bone = 0;
 		bool aiming_on_rmb = false;
 		bool disable_on_vehicle = false;
+		bool aim_from_vehicles_only_horse = false;
 		bool no_recoil = false;
 		bool increase_fire_rate = false;
 		bool weapon_no_overheating = false;
@@ -37,6 +38,8 @@ namespace vars
 		float col_teammate_vis[3];
 		float col_teammate_invis[3];
 		bool vehicle_esp = false;
+		float col_enemy_horse[3];
+		float col_teammate_horse[3];
 		float col_enemy_vehicle[3];
 		float col_teammate_vehicle[3];
 	}
@@ -61,6 +64,7 @@ namespace vars
 		aimbot::bone = 0;
 		aimbot::aiming_on_rmb = true;
 		aimbot::disable_on_vehicle = true;
+		aimbot::aim_from_vehicles_only_horse = true;
 		aimbot::no_recoil = false;
 		aimbot::increase_fire_rate = false;
 		aimbot::weapon_no_overheating = false;
@@ -89,6 +93,12 @@ namespace vars
 		visuals::col_teammate_invis[2] = 1.f;
 		
 		visuals::vehicle_esp = true;
+		visuals::col_enemy_horse[0] = 0.f;
+		visuals::col_enemy_horse[1] = 1.f;
+		visuals::col_enemy_horse[2] = 0.f;
+		visuals::col_teammate_horse[0] = 0.5f;
+		visuals::col_teammate_horse[1] = 0.5f;
+		visuals::col_teammate_horse[2] = 0.1f;
 		visuals::col_enemy_vehicle[0] = 1.f;
 		visuals::col_enemy_vehicle[1] = 0.f;
 		visuals::col_enemy_vehicle[2] = 1.f;

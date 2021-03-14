@@ -480,6 +480,7 @@ void CMenu::Run()
 			ImGui::Combo("Bone", &vars::aimbot::bone, pcszBones, IM_ARRAYSIZE(pcszBones));
 			ImGui::Checkbox("Aiming on RMB", &vars::aimbot::aiming_on_rmb);
 			ImGui::Checkbox("Disable if yourself in vehicle", &vars::aimbot::disable_on_vehicle);
+			ImGui::Checkbox("Aim from vehicles only at the horse ", &vars::aimbot::aim_from_vehicles_only_horse);
 		}
 		else
 		{
@@ -537,7 +538,15 @@ void CMenu::Run()
 			ImGui::SameLine();
 			ImGui::Text("teammate vehicle   ");
 
-			static char* pcszBoxesType[] = { "Off", "Box", "Box outline", "Corner box", "Corner box outline",  "Round box", "Round box outline"  };
+			ImGui::ColorEdit3("##invis enemy horse", vars::visuals::col_enemy_horse);
+			ImGui::SameLine();
+			ImGui::Text("enemy horse  ");
+			ImGui::SameLine();
+			ImGui::ColorEdit3("##vis teammate horse", vars::visuals::col_teammate_horse);
+			ImGui::SameLine();
+			ImGui::Text("teammate horse   ");
+
+			const char* pcszBoxesType[] = { "Off", "Box", "Box outline", "Corner box", "Corner box outline",  "Round box", "Round box outline"  };
 			ImGui::Combo("Bounding box", &vars::visuals::box_type, pcszBoxesType, IM_ARRAYSIZE(pcszBoxesType));
 
 			ImGui::TreePop();
