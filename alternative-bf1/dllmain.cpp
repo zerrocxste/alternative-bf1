@@ -49,7 +49,7 @@ BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lParam)
 
 		GetWindowText(hwnd, text_window, 255);
 
-		if (process_id_that_interests_us_very_much == process_id && !strstr(text_window, ".exe"))
+		if (process_id_that_interests_us_very_much == process_id && strstr(text_window, "Battlefield"))
 		{
 			std::cout << "Window: " << text_window << std::endl;
 			*cur_hwnd = hwnd;
