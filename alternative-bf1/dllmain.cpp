@@ -31,7 +31,7 @@ if (!check_var) \
 } \
 else \
 { \
-	std::cout << success_message << "0x" << std::hex << (DWORD)check_var << std::endl; \
+	std::cout << success_message << "0x" << std::hex << check_var << std::endl; \
 } \
 
 BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lParam)
